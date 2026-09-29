@@ -49,6 +49,7 @@ same slot are shown once.
 | `timeZone` | `Europe/Berlin` | IANA time zone for "today" and timed entries. |
 | `iconStyle` | `color` | Meal symbols: `color` (orange sun, blue moon, green cup) or `mono` (symbols in the text color). |
 | `showHeader` | `true` | Show title and sample label. |
+| `showLegend` | `true` | Show the meal legend (e.g. "Mittag" / "Abend") in the footer. The footer disappears when it has nothing else to show. |
 
 `sampleData` and `now` are available for previews and screenshot variants.
 

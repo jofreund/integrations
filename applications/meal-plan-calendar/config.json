@@ -17,7 +17,8 @@
     "allDayMeal": "dinner",
     "timeZone": "Europe/Berlin",
     "iconStyle": "color",
-    "showHeader": true
+    "showHeader": true,
+    "showLegend": true
   },
   "formSchema": {
     "type": "object",
@@ -85,6 +86,12 @@
         "type": "boolean",
         "title": "Show header",
         "default": true
+      },
+      "showLegend": {
+        "type": "boolean",
+        "title": "Show meal legend",
+        "description": "Legend at the bottom explaining the meal symbols (for example \"Lunch\" / \"Dinner\").",
+        "default": true
       }
     }
   },
@@ -100,6 +107,7 @@
       "timeZone": "Europe/Berlin",
       "iconStyle": "color",
       "showHeader": true,
+      "showLegend": true,
       "sampleData": true,
       "now": "2026-09-29T15:28:00.000Z",
       "screenshots": {
@@ -118,6 +126,7 @@
       "timeZone": "Europe/Berlin",
       "iconStyle": "mono",
       "showHeader": true,
+      "showLegend": true,
       "sampleData": true,
       "now": "2026-09-29T15:28:00.000Z",
       "screenshots": {

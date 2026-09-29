@@ -24,6 +24,7 @@ const defaults = {
   timeZone: "Europe/Berlin",
   iconStyle: "color",
   showHeader: true,
+  showLegend: true,
   sampleData: false,
   now: "",
 };
@@ -164,7 +165,7 @@ function renderPlan(data, settings, messages, visibleCount) {
         ${data.sample ? `<span class="mp-kicker">${escapeHtml(messages.sampleSource)}</span>` : ""}
       </header>`
     : "";
-  const legend = usedSlots(days, data)
+  const legend = (settings.showLegend ? usedSlots(days, data) : [])
     .map((slot) => {
       const label = messages.slots?.[slot] || slot;
       return `<span data-slot="${slot}">${slotBadge(slot, label)}${escapeHtml(label)}</span>`;
@@ -173,14 +174,18 @@ function renderPlan(data, settings, messages, visibleCount) {
   const meta = [];
   if (hidden > 0) meta.push(hidden === 1 ? messages.moreDaysOne : fill(messages.moreDays, { count: hidden }));
   if (data.sample && !settings.showHeader) meta.push(messages.sampleSource);
+  const foot =
+    legend || meta.length
+      ? `<footer class="mp-foot">
+      <span class="mp-legend">${legend}</span>
+      <span class="mp-meta">${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</span>
+    </footer>`
+      : "";
   app.innerHTML = `${head}
     <div class="mp-days" style="--mp-count:${days.length}">
       ${days.map((day) => renderDay(day, data, locale, messages)).join("")}
     </div>
-    <footer class="mp-foot">
-      <span class="mp-legend">${legend}</span>
-      <span class="mp-meta">${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</span>
-    </footer>`;
+    ${foot}`;
 }
 
 function layoutOverflows() {
@@ -288,6 +293,7 @@ async function renderPayload(payload) {
     document.documentElement.lang = language.language || "de";
     const settings = mergeSettings(defaults, getSettings(payload), getQuerySettings());
     settings.showHeader = toBoolean(settings.showHeader, true);
+    settings.showLegend = toBoolean(settings.showLegend, true);
     settings.sampleData = toBoolean(settings.sampleData, false);
     applyColorTheme(settings.color, { defaultTheme: defaults.color });
     app.classList.remove("mp-error");
