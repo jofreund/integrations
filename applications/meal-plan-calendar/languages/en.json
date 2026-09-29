@@ -1,0 +1,23 @@
+{
+  "locale": "en-GB",
+  "title": "Meal plan",
+  "sampleSource": "Sample data",
+  "today": "Today",
+  "tomorrow": "Tomorrow",
+  "notPlanned": "not planned yet",
+  "nothingPlanned": "Nothing planned",
+  "lastEaten": "not eaten for {days} days",
+  "lastEatenOne": "last eaten yesterday",
+  "moreDays": "+{count} more days",
+  "moreDaysOne": "+1 more day",
+  "weatherFor": "Weather: {location}",
+  "weatherUnavailable": "Weather unavailable",
+  "errorTitle": "Meal plan unavailable",
+  "errorHint": "Check the iCloud public calendar link in the settings.",
+  "slots": {
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "other": "Meal"
+  }
+}

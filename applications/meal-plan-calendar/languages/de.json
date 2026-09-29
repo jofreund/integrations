@@ -1,0 +1,23 @@
+{
+  "locale": "de-DE",
+  "title": "Essensplan",
+  "sampleSource": "Beispieldaten",
+  "today": "Heute",
+  "tomorrow": "Morgen",
+  "notPlanned": "noch nicht geplant",
+  "nothingPlanned": "Nichts geplant",
+  "lastEaten": "seit {days} Tagen nicht gegessen",
+  "lastEatenOne": "seit gestern nicht gegessen",
+  "moreDays": "+{count} weitere Tage",
+  "moreDaysOne": "+1 weiterer Tag",
+  "weatherFor": "Wetter: {location}",
+  "weatherUnavailable": "Wetter nicht verfügbar",
+  "errorTitle": "Essensplan nicht verfügbar",
+  "errorHint": "Prüfe den öffentlichen iCloud-Kalenderlink in den Einstellungen.",
+  "slots": {
+    "breakfast": "Frühstück",
+    "lunch": "Mittag",
+    "dinner": "Abend",
+    "other": "Gericht"
+  }
+}
