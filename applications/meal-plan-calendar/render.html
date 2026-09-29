@@ -329,6 +329,48 @@
         }
       }
 
+      /* L frames (1600x1200 / 1200x1600): days in a grid; the 7" layout above stays untouched. */
+      .mp--large .mp-days {
+        display: grid;
+        grid-template-columns: repeat(var(--mp-cols, 1), minmax(0, 1fr));
+        grid-template-rows: repeat(var(--mp-rows, 1), auto);
+        grid-auto-flow: column;
+        align-content: start;
+      }
+      /* Portrait with many days: two columns read top to bottom, rows spread over the height. */
+      .mp--large:not(.mp--landscape) .mp-days.is-multi-col {
+        grid-template-rows: repeat(var(--mp-rows, 1), minmax(auto, 1fr));
+        align-content: stretch;
+      }
+      .mp--large:not(.mp--landscape) .mp-day:not(.is-first-col) {
+        padding-left: calc(var(--k) * 18);
+        border-left: var(--mp-line) solid var(--pp-border);
+      }
+      .mp--large:not(.mp--landscape) .mp-day:not(.is-last-col) {
+        padding-right: calc(var(--k) * 18);
+      }
+      /* Landscape: week columns; more than seven days wrap into a second week row. */
+      .mp--large.mp--landscape .mp-days {
+        grid-template-rows: repeat(var(--mp-rows, 1), minmax(0, 1fr));
+        grid-auto-flow: row;
+        align-content: stretch;
+      }
+      .mp--large.mp--landscape .mp-day {
+        padding: calc(var(--k) * 8) calc(var(--k) * 12) calc(var(--k) * 6);
+        border-left: var(--mp-line) solid var(--pp-border);
+      }
+      .mp--large.mp--landscape .mp-day.is-first-col {
+        padding-left: 0;
+        border-left: 0;
+      }
+      .mp--large.mp--landscape .mp-day.is-last-col {
+        padding-right: 0;
+      }
+      .mp--large.mp--landscape .mp-day:not(.is-first-row) {
+        padding-top: calc(var(--k) * 12);
+        border-top: calc(var(--u) * 3) solid var(--pp-fg);
+      }
+
       .mp-error {
         justify-content: center;
         align-items: flex-start;

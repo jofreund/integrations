@@ -7,6 +7,11 @@ date and its meals grouped into breakfast, lunch, and dinner. Open slots appear 
 Landscape frames show one column per day like a paper week planner; portrait frames show a vertical
 list. Days that do not fit are left out from the end and counted in the footer.
 
+On the larger L frames (1600x1200 / 1200x1600) the type grows moderately instead of doubling the 7"
+layout, and the extra area shows more days: in landscape, more than seven days wrap into a second
+week row; in portrait, the list switches to two columns of days once one column no longer fits.
+The 7" layout (800x480 / 480x800) is unchanged.
+
 ## Setup
 
 1. On iPhone/iPad open **Calendar → Calendars → (i)** next to the meal plan calendar
@@ -68,4 +73,6 @@ node --test tests/meal-plan-calendar.test.mjs
 npx paperlesspaper-openintegration check applications/meal-plan-calendar/config.json
 npx paperlesspaper-openintegration render applications/meal-plan-calendar/config.json --viewport 800x480 --output /tmp/meal-plan-landscape.png
 npx paperlesspaper-openintegration render applications/meal-plan-calendar/config.json --viewport 480x800 --output /tmp/meal-plan-portrait.png
+npx paperlesspaper-openintegration render applications/meal-plan-calendar/config.json --viewport 1600x1200 --output /tmp/meal-plan-l-landscape.png
+npx paperlesspaper-openintegration render applications/meal-plan-calendar/config.json --viewport 1200x1600 --output /tmp/meal-plan-l-portrait.png
 ```
