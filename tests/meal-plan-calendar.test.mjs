@@ -152,7 +152,13 @@ test("sample mode is labelled, deterministic and respects meal settings", async 
     query: { now: "2026-09-29T15:28:00Z", language: "en", slots: "dinner", days: "20" },
   });
   assert.equal(dinnerOnly.days.length, 14, "day count is bounded");
-  assert.ok(dinnerOnly.days.every((day) => day.meals.every((meal) => meal.slot === "dinner")));
+  // Planned lunches stay visible; only the empty lunch gets no placeholder.
+  assert.ok(dinnerOnly.days.every((day) => day.meals.some((meal) => meal.slot === "dinner")));
+  assert.equal(dinnerOnly.days[0].meals[0].slot, "lunch");
+  assert.deepEqual(
+    dinnerOnly.days[2].meals.map((meal) => meal.slot),
+    ["dinner"],
+  );
 });
 
 test("private or non-HTTPS calendar links are rejected before fetching", async () => {

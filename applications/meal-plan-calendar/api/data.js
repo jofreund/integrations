@@ -161,15 +161,16 @@ const SAMPLE_MEALS = {
     ["Lentil stew", "Sheet-pan pizza"],
   ],
 };
-export function sampleEvents(start, language, slots = "lunch-dinner") {
+// Like a real calendar, the sample always holds lunch and dinner; the slots setting
+// only decides which empty meals get a "not planned yet" placeholder.
+export function sampleEvents(start, language) {
   const dishes = SAMPLE_MEALS[language] || SAMPLE_MEALS.en;
-  const withLunch = slots !== "dinner";
   const events = [];
   for (let index = 0; index < MAX_PLAN_DAYS; index += 1) {
     const [lunch, dinner] = dishes[index % dishes.length];
     const date = addDays(start, index);
     // Leave one lunch open so the sample also shows the "not planned yet" state.
-    if (withLunch && index !== 2) {
+    if (index !== 2) {
       const prefix = language === "de" ? "Mittag" : "Lunch";
       events.push({ id: `sample-l-${index}`, title: `${prefix}: ${lunch}`, start: { date }, end: { date: addDays(date, 1) } });
     }
@@ -194,7 +195,7 @@ export default async function handler({ query = {} }) {
   let events;
   let calendarName = "";
   if (sample) {
-    events = sampleEvents(range.start, language, slots);
+    events = sampleEvents(range.start, language);
   } else {
     const ics = await fetchCalendarFeed({ feedUrl: calendarUrl });
     const parsed = parseCalendarFeed(ics, {

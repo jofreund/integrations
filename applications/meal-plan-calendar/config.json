@@ -113,7 +113,7 @@
       "calendarUrl": "",
       "days": 7,
       "startDay": "monday",
-      "slots": "dinner",
+      "slots": "lunch-dinner",
       "allDayMeal": "dinner",
       "timeZone": "Europe/Berlin",
       "iconStyle": "mono",
