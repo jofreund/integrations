@@ -21,8 +21,6 @@ const defaults = {
   startDay: "today",
   slots: "lunch-dinner",
   allDayMeal: "dinner",
-  showLastEaten: true,
-  lastEatenMinDays: 30,
   timeZone: "Europe/Berlin",
   showHeader: true,
   sampleData: false,
@@ -119,20 +117,12 @@ function renderMeal(meal, previousSlot, messages) {
   const classes = ["mp-meal"];
   if (meal.empty) classes.push("is-empty");
   if (meal.slot === previousSlot) classes.push("is-repeat");
-  let note = "";
-  if (Number.isFinite(meal.lastEatenDays)) {
-    const text =
-      meal.lastEatenDays === 1
-        ? messages.lastEatenOne
-        : fill(messages.lastEaten, { days: meal.lastEatenDays });
-    note = `<span class="mp-note">${escapeHtml(text)}</span>`;
-  }
   // Bound pathological calendar titles; the layout fit handles everything shorter.
   const raw = meal.empty ? messages.notPlanned : meal.title;
   const title = raw.length > MAX_TITLE ? `${raw.slice(0, MAX_TITLE).replace(/\s+\S*$/, "")}…` : raw;
   return `<li class="${classes.join(" ")}" data-slot="${escapeHtml(meal.slot)}">
     ${slotBadge(meal.slot, slotLabel)}
-    <span class="mp-text"><span class="mp-title">${escapeHtml(title)}</span>${note}</span>
+    <span class="mp-text"><span class="mp-title">${escapeHtml(title)}</span></span>
   </li>`;
 }
 
@@ -265,8 +255,6 @@ async function loadPlan(settings, language) {
       startDay: settings.startDay,
       slots: settings.slots,
       allDayMeal: settings.allDayMeal,
-      showLastEaten: settings.showLastEaten,
-      lastEatenMinDays: settings.lastEatenMinDays,
       timeZone: settings.timeZone,
       sampleData: settings.sampleData,
       now: settings.now,

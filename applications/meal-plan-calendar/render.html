@@ -233,24 +233,6 @@
         color: var(--pp-fg);
         border: var(--mp-line) dashed var(--pp-fg);
       }
-      .mp-note {
-        display: flex;
-        align-items: center;
-        gap: calc(var(--k) * 6);
-        margin-top: calc(var(--k) * 3);
-        font-size: calc(var(--k) * 14);
-        font-weight: 600;
-        line-height: 1.2;
-      }
-      .mp-note::before {
-        content: "";
-        flex-shrink: 0;
-        width: calc(var(--k) * 9);
-        height: calc(var(--k) * 9);
-        background: var(--pp-yellow);
-        border: calc(var(--u) * 1.5) solid var(--pp-black);
-        transform: rotate(45deg);
-      }
       .mp-nothing {
         margin: 0;
         padding: calc(var(--k) * 8) 0 calc(var(--k) * 8) calc(var(--k) * 70);
@@ -398,13 +380,6 @@
           display: inline;
           font-size: calc(var(--k) * 17);
           line-height: 1.24;
-        }
-        .mp-note {
-          font-size: calc(var(--k) * 12);
-          align-items: flex-start;
-        }
-        .mp-note::before {
-          margin-top: calc(var(--k) * 3);
         }
         .mp-nothing {
           padding-left: 0;

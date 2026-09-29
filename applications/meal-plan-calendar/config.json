@@ -2,7 +2,7 @@
   "name": "Meal Plan Calendar",
   "version": "0.1.0",
   "status": "alpha",
-  "description": "Shows a family meal plan from a shared iCloud calendar with lunch and dinner per day and a hint for dishes not eaten for a while.",
+  "description": "Shows a family meal plan from a shared iCloud calendar with breakfast, lunch and dinner per day.",
   "renderPage": "./render.html",
   "icon": "./assets/icon.png",
   "timezone": "Europe/Berlin",
@@ -15,8 +15,6 @@
     "startDay": "today",
     "slots": "lunch-dinner",
     "allDayMeal": "dinner",
-    "showLastEaten": true,
-    "lastEatenMinDays": 30,
     "timeZone": "Europe/Berlin",
     "showHeader": true
   },
@@ -68,18 +66,6 @@
         "enumNames": ["Dinner", "Lunch", "Breakfast", "Unassigned meal"],
         "default": "dinner"
       },
-      "showLastEaten": {
-        "type": "boolean",
-        "title": "Show dishes not eaten for a while",
-        "default": true
-      },
-      "lastEatenMinDays": {
-        "type": "integer",
-        "title": "Show after days without the dish",
-        "minimum": 1,
-        "maximum": 3650,
-        "default": 30
-      },
       "timeZone": {
         "type": "string",
         "title": "Time zone",
@@ -102,8 +88,6 @@
       "startDay": "today",
       "slots": "lunch-dinner",
       "allDayMeal": "dinner",
-      "showLastEaten": true,
-      "lastEatenMinDays": 30,
       "timeZone": "Europe/Berlin",
       "showHeader": true,
       "sampleData": true,
@@ -121,8 +105,6 @@
       "startDay": "monday",
       "slots": "dinner",
       "allDayMeal": "dinner",
-      "showLastEaten": true,
-      "lastEatenMinDays": 30,
       "timeZone": "Europe/Berlin",
       "showHeader": true,
       "sampleData": true,

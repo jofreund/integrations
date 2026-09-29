@@ -9,9 +9,6 @@ import {
   stringSetting,
 } from "../../_shared/calendar-feed.js";
 
-// iCloud public feeds keep roughly the last six months; look back a little further
-// so other feeds with longer histories can still report "not eaten for X days".
-const HISTORY_DAYS = 400;
 const MAX_PLAN_DAYS = 14;
 const SLOT_ORDER = ["breakfast", "lunch", "dinner", "other"];
 const SLOT_SETS = {
@@ -35,10 +32,6 @@ const SEPARATOR = /^[\s:|/–—-]+/u;
 export function addDays(key, amount) {
   const [year, month, day] = key.split("-").map(Number);
   return new Date(Date.UTC(year, month - 1, day + amount)).toISOString().slice(0, 10);
-}
-
-export function daysBetween(fromKey, toKey) {
-  return Math.round((Date.parse(`${toKey}T00:00:00Z`) - Date.parse(`${fromKey}T00:00:00Z`)) / 86_400_000);
 }
 
 function weekdayIndex(key) {
@@ -117,14 +110,8 @@ export function planRange({ now, timeZone, days, startDay }) {
   return { today, start, endExclusive: addDays(start, days) };
 }
 
-/** Groups meals into display days, adds empty slot placeholders and "last eaten" hints. */
-export function buildPlan(meals, { today, start, days, slots, showLastEaten = true, lastEatenMinDays = 30 }) {
-  const history = new Map();
-  for (const meal of meals) {
-    if (meal.date >= today) continue;
-    const key = normalizeMealTitle(meal.title);
-    if (key && (!history.has(key) || history.get(key) < meal.date)) history.set(key, meal.date);
-  }
+/** Groups meals into display days and adds placeholders for empty planned slots. */
+export function buildPlan(meals, { start, days, slots }) {
   const plannedSlots = SLOT_SETS[slots] || SLOT_SETS["lunch-dinner"];
   const result = [];
   for (let index = 0; index < days; index += 1) {
@@ -143,13 +130,7 @@ export function buildPlan(meals, { today, start, days, slots, showLastEaten = tr
       const dedupeKey = `${entry.slot}:${normalizeMealTitle(entry.title)}`;
       if (seen.has(dedupeKey)) continue;
       seen.add(dedupeKey);
-      let lastEatenDays = null;
-      const last = history.get(normalizeMealTitle(entry.title));
-      if (showLastEaten && date >= today && last) {
-        const gap = daysBetween(last, today);
-        if (gap >= lastEatenMinDays) lastEatenDays = gap;
-      }
-      dayMeals.push({ slot: entry.slot, title: entry.title, lastEatenDays });
+      dayMeals.push({ slot: entry.slot, title: entry.title });
     }
     for (const slot of plannedSlots) {
       if (!dayMeals.some((meal) => meal.slot === slot)) dayMeals.push({ slot, title: "", empty: true });
@@ -194,11 +175,6 @@ export function sampleEvents(start, language, slots = "lunch-dinner") {
     }
     events.push({ id: `sample-d-${index}`, title: dinner, start: { date }, end: { date: addDays(date, 1) } });
   }
-  // Past entries let the sample show the "not eaten for X days" hint.
-  for (const [offset, dish] of [[-94, dishes[3][withLunch ? 0 : 1]], [-41, dishes[1][1]]]) {
-    const past = addDays(start, offset);
-    events.push({ id: `sample-history${offset}`, title: dish, start: { date: past }, end: { date: addDays(past, 1) } });
-  }
   return events;
 }
 
@@ -213,11 +189,7 @@ export default async function handler({ query = {} }) {
   const slots = SLOT_SETS[slotsSetting] ? slotsSetting : "lunch-dinner";
   const allDaySetting = stringSetting(query, "allDayMeal", "dinner");
   const allDayMeal = ALL_DAY_SLOTS.has(allDaySetting) ? allDaySetting : "dinner";
-  const showLastEaten = booleanSetting(query, "showLastEaten", true);
-  const lastEatenMinDays = integerSetting(query, "lastEatenMinDays", 30, 1, 3650);
   const range = planRange({ now: stringSetting(query, "now", ""), timeZone, days, startDay });
-  const historyStart = addDays(range.today, -HISTORY_DAYS);
-  const fetchFrom = historyStart < range.start ? historyStart : range.start;
 
   let events;
   let calendarName = "";
@@ -226,7 +198,7 @@ export default async function handler({ query = {} }) {
   } else {
     const ics = await fetchCalendarFeed({ feedUrl: calendarUrl });
     const parsed = parseCalendarFeed(ics, {
-      from: fetchFrom,
+      from: range.start,
       to: range.endExclusive,
       timeZone,
       maxEvents: 5000,
@@ -236,7 +208,7 @@ export default async function handler({ query = {} }) {
   }
 
   const meals = eventsToMeals(events, { timeZone, allDayMeal, rangeEndExclusive: range.endExclusive });
-  const plan = buildPlan(meals, { ...range, days, slots, showLastEaten, lastEatenMinDays });
+  const plan = buildPlan(meals, { ...range, days, slots });
 
   return {
     sample,

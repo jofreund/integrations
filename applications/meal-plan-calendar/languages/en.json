@@ -6,8 +6,6 @@
   "tomorrow": "Tomorrow",
   "notPlanned": "not planned yet",
   "nothingPlanned": "Nothing planned",
-  "lastEaten": "not eaten for {days} days",
-  "lastEatenOne": "last eaten yesterday",
   "moreDays": "+{count} more days",
   "moreDaysOne": "+1 more day",
   "errorTitle": "Meal plan unavailable",

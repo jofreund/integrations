@@ -2,8 +2,7 @@
 
 Shows a family meal plan ("Essensplan") that lives in a shared iCloud calendar. Every day gets a large
 date and its meals grouped into breakfast, lunch, and dinner. Open slots appear as
-"not planned yet", and dishes that have not been on the table for a while get a small
-"not eaten for X days" hint, computed from the calendar's own history.
+"not planned yet".
 
 Landscape frames show one column per day like a paper week planner; portrait frames show a vertical
 list. Days that do not fit are left out from the end and counted in the footer.
@@ -37,10 +36,6 @@ Prefixes may also be written as `[Mittag] …` or `(Abend) …` and are removed 
 Multi-day all-day entries (e.g. leftovers for two days) repeat on each day. Identical dishes in the
 same slot are shown once.
 
-"Not eaten for X days" compares the normalized title (case, spaces, punctuation, and accents ignored)
-with the most recent past entry. iCloud public feeds only contain roughly the last six months, so
-older history cannot be counted.
-
 ## Settings
 
 | Setting | Default | Description |
@@ -51,8 +46,6 @@ older history cannot be counted.
 | `startDay` | `today` | `today` or `monday` of the current week. |
 | `slots` | `lunch-dinner` | Slots shown as "not planned yet" when empty: `lunch-dinner`, `dinner`, `all`, `none`. |
 | `allDayMeal` | `dinner` | Slot for all-day entries without prefix: `dinner`, `lunch`, `breakfast`, `other`. |
-| `showLastEaten` | `true` | Show the "not eaten for X days" hint. |
-| `lastEatenMinDays` | `30` | Minimum gap before the hint appears. |
 | `timeZone` | `Europe/Berlin` | IANA time zone for "today" and timed entries. |
 | `showHeader` | `true` | Show title, date range, and sample label. |
 

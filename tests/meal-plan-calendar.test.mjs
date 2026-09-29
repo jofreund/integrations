@@ -38,12 +38,6 @@ const ICS = [
   "DTEND;TZID=Europe/Berlin:20260930T193000",
   "SUMMARY:Linsensalat",
   "END:VEVENT",
-  "BEGIN:VEVENT",
-  "UID:5",
-  "DTSTART;VALUE=DATE:20260601",
-  "DTEND;VALUE=DATE:20260602",
-  "SUMMARY:Gyoza-Auflauf",
-  "END:VEVENT",
   "END:VCALENDAR",
 ].join("\r\n");
 
@@ -59,7 +53,7 @@ test("meal titles accept slot prefixes without eating compound words", () => {
   assert.deepEqual(parseMealTitle("Mittag:"), { slot: "", title: "Mittag:" });
 });
 
-test("titles normalize punctuation, case and diacritics for history matching", () => {
+test("titles normalize punctuation, case and diacritics for duplicate detection", () => {
   assert.equal(normalizeMealTitle("Gyoza- Auflauf"), normalizeMealTitle("gyoza-auflauf"));
   assert.equal(normalizeMealTitle("Käse-Spätzle"), "kasespatzle");
   assert.equal(normalizeMealTitle("Grießbrei"), "griessbrei");
@@ -73,18 +67,18 @@ test("timed entries are assigned by local start time", () => {
   assert.equal(slotForTime(16, 0), "dinner");
 });
 
-test("iCloud feed events become a meal plan with placeholders and last-eaten hints", () => {
+test("iCloud feed events become a meal plan with placeholders", () => {
   const timeZone = "Europe/Berlin";
   const range = planRange({ now: "2026-09-29T15:28:00Z", timeZone, days: 3, startDay: "today" });
   assert.deepEqual(range, { today: "2026-09-29", start: "2026-09-29", endExclusive: "2026-10-02" });
   const { events, calendarName } = parseCalendarFeed(ICS, {
-    from: "2025-08-25",
+    from: range.start,
     to: range.endExclusive,
     timeZone,
   });
   assert.equal(calendarName, "Essensplan");
   const meals = eventsToMeals(events, { timeZone, allDayMeal: "dinner" });
-  const plan = buildPlan(meals, { ...range, days: 3, slots: "lunch-dinner", lastEatenMinDays: 30 });
+  const plan = buildPlan(meals, { ...range, days: 3, slots: "lunch-dinner" });
 
   assert.deepEqual(
     plan[0].meals.map(({ slot, title }) => [slot, title]),
@@ -94,10 +88,10 @@ test("iCloud feed events become a meal plan with placeholders and last-eaten hin
     ],
   );
   assert.deepEqual(
-    plan[1].meals.map(({ slot, title, lastEatenDays }) => [slot, title, lastEatenDays]),
+    plan[1].meals,
     [
-      ["lunch", "Gyoza- Auflauf", 120],
-      ["dinner", "Linsensalat", null],
+      { slot: "lunch", title: "Gyoza- Auflauf" },
+      { slot: "dinner", title: "Linsensalat" },
     ],
   );
   assert.deepEqual(plan[2].meals, [
@@ -106,22 +100,23 @@ test("iCloud feed events become a meal plan with placeholders and last-eaten hin
   ]);
 });
 
-test("last-eaten hints respect the threshold and ignore future repeats", () => {
+test("duplicate dishes in one slot are merged and meals are sorted by slot", () => {
   const meals = [
-    { date: "2026-09-20", slot: "dinner", title: "Pizza", sort: -1 },
-    { date: "2026-09-29", slot: "dinner", title: "Pizza", sort: -1 },
     { date: "2026-10-01", slot: "dinner", title: "Pizza", sort: -1 },
-    { date: "2026-10-01", slot: "dinner", title: "pizza", sort: -1 },
+    { date: "2026-10-01", slot: "dinner", title: "Pizza!", sort: -1 },
+    { date: "2026-10-01", slot: "lunch", title: "Suppe", sort: 720 },
+    { date: "2026-10-01", slot: "breakfast", title: "Müsli", sort: 480 },
   ];
-  const base = { today: "2026-09-29", start: "2026-09-29", days: 3, slots: "none" };
-  let plan = buildPlan(meals, { ...base, lastEatenMinDays: 30 });
-  assert.equal(plan[0].meals[0].lastEatenDays, null);
-  plan = buildPlan(meals, { ...base, lastEatenMinDays: 7 });
-  assert.equal(plan[0].meals[0].lastEatenDays, 9);
-  assert.equal(plan[2].meals.length, 1, "duplicate entries in one slot are merged");
-  assert.equal(plan[2].meals[0].lastEatenDays, 9);
-  plan = buildPlan(meals, { ...base, lastEatenMinDays: 7, showLastEaten: false });
-  assert.equal(plan[0].meals[0].lastEatenDays, null);
+  const plan = buildPlan(meals, { start: "2026-09-29", days: 3, slots: "none" });
+  assert.deepEqual(plan[0].meals, [], "no placeholders when slots is none");
+  assert.deepEqual(
+    plan[2].meals.map(({ slot, title }) => [slot, title]),
+    [
+      ["breakfast", "Müsli"],
+      ["lunch", "Suppe"],
+      ["dinner", "Pizza"],
+    ],
+  );
 });
 
 test("multi-day all-day entries repeat and week mode starts on Monday", () => {
@@ -151,7 +146,7 @@ test("sample mode is labelled, deterministic and respects meal settings", async 
   assert.deepEqual(data.slots, ["lunch", "dinner"]);
   assert.equal(data.days[0].meals[0].title, "Spaghetti Bolognese");
   assert.equal(data.days[2].meals[0].empty, true);
-  assert.ok(data.days.some((day) => day.meals.some((meal) => meal.lastEatenDays === 94)));
+  assert.ok(data.days.every((day) => day.meals.every((meal) => !("lastEatenDays" in meal))));
 
   const dinnerOnly = await handler({
     query: { now: "2026-09-29T15:28:00Z", language: "en", slots: "dinner", days: "20" },
