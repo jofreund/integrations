@@ -2,8 +2,6 @@
   "locale": "en-GB",
   "title": "Meal plan",
   "sampleSource": "Sample data",
-  "today": "Today",
-  "tomorrow": "Tomorrow",
   "notPlanned": "not planned yet",
   "nothingPlanned": "Nothing planned",
   "moreDays": "+{count} more days",

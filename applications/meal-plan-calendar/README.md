@@ -54,7 +54,7 @@ same slot are shown once.
 ## Design notes
 
 - Today's date sits on an orange block (dithered on Spectra 6, black numerals); colored themes use
-  their accent instead. "Today"/"Tomorrow" are also written out.
+  their accent instead.
 - Slot badges use native pigments: yellow with black outline for lunch, blue for dinner, green for
   breakfast. The footer legend names each slot, so color is never the only cue.
 

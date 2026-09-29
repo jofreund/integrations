@@ -2,8 +2,6 @@
   "locale": "de-DE",
   "title": "Essensplan",
   "sampleSource": "Beispieldaten",
-  "today": "Heute",
-  "tomorrow": "Morgen",
   "notPlanned": "noch nicht geplant",
   "nothingPlanned": "Nichts geplant",
   "moreDays": "+{count} weitere Tage",

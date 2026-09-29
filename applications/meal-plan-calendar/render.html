@@ -131,26 +131,11 @@
         min-width: 0;
       }
       .mp-wd {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: calc(var(--k) * 6);
         font-size: calc(var(--k) * 18);
         font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.04em;
         line-height: 1.15;
-      }
-      .mp-tag {
-        font-style: normal;
-        font-size: calc(var(--k) * 11);
-        letter-spacing: 0.08em;
-        padding: calc(var(--k) * 1) calc(var(--k) * 6);
-        border: var(--mp-line) solid var(--pp-fg);
-        border-radius: 999px;
-      }
-      .mp-tag--below {
-        display: none;
       }
       .mp-mo {
         font-size: calc(var(--k) * 14);
@@ -322,21 +307,6 @@
         }
         .mp-mo {
           font-size: calc(var(--k) * 12);
-        }
-        /* Narrow day columns: "Heute" / "Morgen" replaces the month line. */
-        .mp-tag--inline,
-        .mp-mo:has(.mp-tag--below) .mp-mo-text {
-          display: none;
-        }
-        .mp-mo {
-          display: flex;
-          align-items: center;
-          height: calc(var(--k) * 17);
-        }
-        .mp-tag--below {
-          display: inline-block;
-          font-size: calc(var(--k) * 10);
-          line-height: 1.1;
         }
         .mp-head > div {
           display: flex;

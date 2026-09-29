@@ -62,12 +62,6 @@ function formatter(locale, options) {
   return new Intl.DateTimeFormat(locale, { timeZone: "UTC", ...options });
 }
 
-function addDays(key, amount) {
-  const date = dayFromKey(key);
-  date.setUTCDate(date.getUTCDate() + amount);
-  return date.toISOString().slice(0, 10);
-}
-
 function dishBreaks(word) {
   const lower = word.toLowerCase();
   const breaks = new Set();
@@ -129,8 +123,6 @@ function renderMeal(meal, previousSlot, messages) {
 function renderDay(day, data, locale, messages) {
   const date = dayFromKey(day.date);
   const isToday = day.date === data.today;
-  const isTomorrow = day.date === addDays(data.today, 1);
-  const tag = isToday ? messages.today : isTomorrow ? messages.tomorrow : "";
   const weekday = formatter(locale, { weekday: "long" }).format(date);
   const month = formatter(locale, { month: "long" }).format(date);
   let previousSlot = "";
@@ -145,8 +137,8 @@ function renderDay(day, data, locale, messages) {
     <header class="mp-date">
       <span class="mp-num">${date.getUTCDate()}</span>
       <span class="mp-dt">
-        <span class="mp-wd">${escapeHtml(weekday)}${tag ? `<em class="mp-tag mp-tag--inline">${escapeHtml(tag)}</em>` : ""}</span>
-        <span class="mp-mo"><span class="mp-mo-text">${escapeHtml(month)}</span>${tag ? `<em class="mp-tag mp-tag--below">${escapeHtml(tag)}</em>` : ""}</span>
+        <span class="mp-wd">${escapeHtml(weekday)}</span>
+        <span class="mp-mo">${escapeHtml(month)}</span>
       </span>
     </header>
     ${meals ? `<ul class="mp-meals">${meals}</ul>` : `<p class="mp-nothing">${escapeHtml(messages.nothingPlanned)}</p>`}
