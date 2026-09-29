@@ -112,7 +112,9 @@
       "now": "2026-09-29T15:28:00.000Z",
       "screenshots": {
         "800x480": "./screenshots/meal-plan-calendar-default-800x480.png",
-        "480x800": "./screenshots/meal-plan-calendar-default-480x800.png"
+        "480x800": "./screenshots/meal-plan-calendar-default-480x800.png",
+        "1600x1200": "./screenshots/meal-plan-calendar-default-1600x1200.png",
+        "1200x1600": "./screenshots/meal-plan-calendar-default-1200x1600.png"
       }
     },
     {
@@ -131,7 +133,9 @@
       "now": "2026-09-29T15:28:00.000Z",
       "screenshots": {
         "800x480": "./screenshots/meal-plan-calendar-dark-800x480.png",
-        "480x800": "./screenshots/meal-plan-calendar-dark-480x800.png"
+        "480x800": "./screenshots/meal-plan-calendar-dark-480x800.png",
+        "1600x1200": "./screenshots/meal-plan-calendar-dark-1600x1200.png",
+        "1200x1600": "./screenshots/meal-plan-calendar-dark-1200x1600.png"
       }
     }
   ]

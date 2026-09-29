@@ -30,6 +30,8 @@ const defaults = {
 };
 const FIT_SCALES = [1, 0.94, 0.88, 0.82, 0.76, 0.7];
 const MAX_TITLE = 120;
+// Short display side from which the L layout applies (7" frames: 480, L frames: 1200).
+const LARGE_MIN_SIDE = 900;
 const ICON_STYLES = ["color", "mono"];
 const SLOT_ORDER = ["breakfast", "lunch", "dinner", "other"];
 // Common dish components; compounds break before them ("Kartoffel-suppe", "Flamm-kuchen").
@@ -123,7 +125,31 @@ function renderMeal(meal, previousSlot, messages) {
   </li>`;
 }
 
-function renderDay(day, data, locale, messages) {
+// L frames place the days in a grid: more than seven days wrap into a second week row in
+// landscape; portrait keeps one column while it fits and falls back to two columns of days.
+// The 7" frames keep their single row / single column.
+function gridOptions(count) {
+  if (!app.classList.contains("mp--large")) return [null];
+  if (app.classList.contains("mp--landscape")) {
+    const rows = count > 7 ? 2 : 1;
+    return [{ rows, cols: Math.ceil(count / rows), byColumn: false }];
+  }
+  const single = { rows: count, cols: 1, byColumn: true };
+  return count > 2 ? [single, { rows: Math.ceil(count / 2), cols: 2, byColumn: true }] : [single];
+}
+
+function gridClasses(index, grid) {
+  if (!grid) return "";
+  const row = grid.byColumn ? index % grid.rows : Math.floor(index / grid.cols);
+  const col = grid.byColumn ? Math.floor(index / grid.rows) : index % grid.cols;
+  const classes = [];
+  if (row === 0) classes.push("is-first-row");
+  if (col === 0) classes.push("is-first-col");
+  if (col === grid.cols - 1) classes.push("is-last-col");
+  return classes.map((name) => ` ${name}`).join("");
+}
+
+function renderDay(day, data, locale, messages, extraClasses = "") {
   const date = dayFromKey(day.date);
   const isToday = day.date === data.today;
   const weekday = formatter(locale, { weekday: "long" }).format(date);
@@ -136,7 +162,7 @@ function renderDay(day, data, locale, messages) {
       return html;
     })
     .join("");
-  return `<section class="mp-day${isToday ? " is-today" : ""}${day.date < data.today ? " is-past" : ""}">
+  return `<section class="mp-day${isToday ? " is-today" : ""}${day.date < data.today ? " is-past" : ""}${extraClasses}">
     <header class="mp-date">
       <span class="mp-num">${date.getUTCDate()}</span>
       <span class="mp-dt">
@@ -154,7 +180,7 @@ function usedSlots(days, data) {
   return SLOT_ORDER.filter((slot) => slots.has(slot));
 }
 
-function renderPlan(data, settings, messages, visibleCount) {
+function renderPlan(data, settings, messages, visibleCount, grid = null) {
   const locale = messages.locale || "de-DE";
   const days = data.days.slice(0, visibleCount);
   const hidden = data.days.length - days.length;
@@ -181,9 +207,11 @@ function renderPlan(data, settings, messages, visibleCount) {
       <span class="mp-meta">${meta.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</span>
     </footer>`
       : "";
+  const gridStyle = grid ? `;--mp-rows:${grid.rows};--mp-cols:${grid.cols}` : "";
+  const gridClass = grid?.cols > 1 ? " is-multi-col" : "";
   app.innerHTML = `${head}
-    <div class="mp-days" style="--mp-count:${days.length}">
-      ${days.map((day) => renderDay(day, data, locale, messages)).join("")}
+    <div class="mp-days${gridClass}" style="--mp-count:${days.length}${gridStyle}">
+      ${days.map((day, index) => renderDay(day, data, locale, messages, gridClasses(index, grid))).join("")}
     </div>
     ${foot}`;
 }
@@ -208,27 +236,36 @@ function clampedTitles() {
   ).length;
 }
 
+// A preferred grid that is not the last option only counts while its type stays this large.
+const MIN_PREFERRED_SCALE = 0.88;
+
 function fitPlan(data, settings, messages) {
   for (let count = data.days.length; count >= 1; count -= 1) {
-    renderPlan(data, settings, messages, count);
+    const options = gridOptions(count);
     let best = null;
-    for (const scale of FIT_SCALES) {
-      app.style.setProperty("--s", String(scale));
-      hyphenateTitles();
-      if (layoutOverflows()) continue;
-      const clamped = clampedTitles();
-      if (!clamped) return;
-      if (!best || clamped < best.clamped) best = { scale, clamped };
+    for (const [index, grid] of options.entries()) {
+      const last = index === options.length - 1;
+      renderPlan(data, settings, messages, count, grid);
+      for (const scale of FIT_SCALES) {
+        if (!last && scale < MIN_PREFERRED_SCALE) break;
+        app.style.setProperty("--s", String(scale));
+        hyphenateTitles();
+        if (layoutOverflows()) continue;
+        const clamped = clampedTitles();
+        if (!clamped) return;
+        if (!best || clamped < best.clamped) best = { grid, scale, clamped };
+      }
     }
     // Prefer showing every day with a clamped long title over dropping a whole day.
     if (best) {
+      renderPlan(data, settings, messages, count, best.grid);
       app.style.setProperty("--s", String(best.scale));
       hyphenateTitles();
       return;
     }
   }
   // Keep a single day at the smallest scale; line clamping bounds the remaining text.
-  renderPlan(data, settings, messages, 1);
+  renderPlan(data, settings, messages, 1, gridOptions(1).at(-1));
   app.style.setProperty("--s", String(FIT_SCALES.at(-1)));
   hyphenateTitles();
 }
@@ -299,12 +336,18 @@ async function renderPayload(payload) {
     app.classList.remove("mp-error");
     const iconStyle = ICON_STYLES.includes(settings.iconStyle) ? settings.iconStyle : defaults.iconStyle;
     for (const style of ICON_STYLES) app.classList.toggle(`mp--icons-${style}`, style === iconStyle);
-    // One unit is 1px on the 800x480 / 480x800 reference frames and scales with larger ones.
+    // One unit is 1px on the 800x480 / 480x800 reference frames (7"). L frames (1600x1200 /
+    // 1200x1600) use a 1000x750 / 750x1000 reference instead of doubling the 7" layout, so
+    // type grows moderately and the extra area shows more days in a grid.
     const landscape = window.innerWidth >= window.innerHeight;
+    const large = Math.min(window.innerWidth, window.innerHeight) >= LARGE_MIN_SIDE;
+    const [refLong, refShort] = large ? [1000, 750] : [800, 480];
     const unit = landscape
-      ? Math.min(window.innerWidth / 800, window.innerHeight / 480)
-      : Math.min(window.innerWidth / 480, window.innerHeight / 800);
+      ? Math.min(window.innerWidth / refLong, window.innerHeight / refShort)
+      : Math.min(window.innerWidth / refShort, window.innerHeight / refLong);
     app.style.setProperty("--u", `${unit}px`);
+    app.classList.toggle("mp--large", large);
+    app.classList.toggle("mp--landscape", landscape);
 
     const [data] = await Promise.all([loadPlan(settings, language.language || "de"), loadFonts()]);
     if (current !== revision) return;
