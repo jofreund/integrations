@@ -259,6 +259,19 @@ async function loadPlan(settings, language) {
   return data;
 }
 
+// paperless.css declares Open Sans with font-display: block, so text stays invisible until
+// its face has loaded. Load every face this layout uses before measuring and capturing.
+const FONT_FACES = ["400", "italic 400", "500", "600", "700", "800"];
+
+async function loadFonts() {
+  if (!document.fonts?.load) return;
+  await Promise.all(
+    FONT_FACES.map((face) =>
+      document.fonts.load(`${face} 16px "Paperless Open Sans"`, "Essensplan ÄÖÜäöüß").catch(() => []),
+    ),
+  );
+}
+
 function toBoolean(value, fallback) {
   if (value === undefined || value === null || value === "") return fallback;
   if (typeof value === "string") return !["false", "0", "off", "no"].includes(value.toLowerCase());
@@ -287,10 +300,12 @@ async function renderPayload(payload) {
       : Math.min(window.innerWidth / 480, window.innerHeight / 800);
     app.style.setProperty("--u", `${unit}px`);
 
-    const data = await loadPlan(settings, language.language || "de");
+    const [data] = await Promise.all([loadPlan(settings, language.language || "de"), loadFonts()]);
     if (current !== revision) return;
-    await document.fonts?.ready;
     fitPlan(data, settings, messages);
+    // Faces first used by the rendered text must finish too, or the capture shows blank text.
+    await document.fonts?.ready;
+    if (current !== revision) return;
     markReady();
   } catch (error) {
     if (current !== revision) return;
