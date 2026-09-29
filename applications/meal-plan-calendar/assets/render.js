@@ -22,14 +22,14 @@ const defaults = {
   slots: "lunch-dinner",
   allDayMeal: "dinner",
   timeZone: "Europe/Berlin",
-  iconStyle: "badge",
+  iconStyle: "color",
   showHeader: true,
   sampleData: false,
   now: "",
 };
 const FIT_SCALES = [1, 0.94, 0.88, 0.82, 0.76, 0.7];
 const MAX_TITLE = 120;
-const ICON_STYLES = ["badge", "color", "mono"];
+const ICON_STYLES = ["color", "mono"];
 const SLOT_ORDER = ["breakfast", "lunch", "dinner", "other"];
 // Common dish components; compounds break before them ("Kartoffel-suppe", "Flamm-kuchen").
 const DISH_PARTS = [
@@ -90,12 +90,12 @@ function hyphenateTitles() {
   for (const title of app.querySelectorAll(".mp-title")) {
     title.dataset.raw ??= title.textContent;
     measure.font = getComputedStyle(title).font;
-    // Landscape titles are inline and flow around a floated badge, so words must also fit
+    // Landscape titles are inline and flow around a floated meal symbol, so words must also fit
     // on the shortened first line. The margin absorbs small canvas-vs-layout differences.
-    const badge = title.closest(".mp-meal")?.querySelector(".mp-slot");
-    const badgeWidth =
-      badge && getComputedStyle(badge).float === "left" ? badge.getBoundingClientRect().width * 1.4 : 0;
-    const width = (title.closest(".mp-text").clientWidth - badgeWidth) * 0.96;
+    const symbol = title.closest(".mp-meal")?.querySelector(".mp-slot");
+    const symbolWidth =
+      symbol && getComputedStyle(symbol).float === "left" ? symbol.getBoundingClientRect().width * 1.4 : 0;
+    const width = (title.closest(".mp-text").clientWidth - symbolWidth) * 0.96;
     title.textContent = title.dataset.raw.replace(/\p{L}{6,}/gu, (word) => {
       const withParts = dishBreaks(word);
       if (withParts !== word || measure.measureText(word).width <= width) return withParts;

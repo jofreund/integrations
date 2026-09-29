@@ -18,13 +18,6 @@
         --k: calc(var(--u) * var(--s));
         --mp-hl: var(--pp-orange, #ff8000);
         --mp-hl-ink: var(--pp-black);
-        /* Small badges use native pigments; dithered orange is kept for larger areas. */
-        --mp-lunch: var(--pp-yellow);
-        --mp-lunch-ink: var(--pp-black);
-        --mp-dinner: var(--pp-blue);
-        --mp-dinner-ink: var(--pp-white);
-        --mp-breakfast: var(--pp-green);
-        --mp-breakfast-ink: var(--pp-black);
         --mp-line: calc(var(--u) * 2);
         box-sizing: border-box;
         width: 100vw;
@@ -151,57 +144,23 @@
         align-items: center;
         min-width: 0;
       }
+      /* Meal symbols without a background; the glyph slightly exceeds its layout box. */
       .mp-slot {
         justify-self: center;
         display: grid;
         place-items: center;
         width: calc(var(--k) * 30);
         height: calc(var(--k) * 30);
-        border-radius: 50%;
-        background: var(--pp-bg);
         color: var(--pp-fg);
-        border: var(--mp-line) solid var(--pp-fg);
       }
       .mp-slot svg {
-        width: 74%;
-        height: 74%;
-      }
-      .mp-meal.is-repeat .mp-slot {
-        visibility: hidden;
-      }
-      [data-slot="lunch"] .mp-slot {
-        background: var(--mp-lunch);
-        color: var(--mp-lunch-ink);
-        border-color: var(--pp-black);
-      }
-      [data-slot="dinner"] .mp-slot {
-        background: var(--mp-dinner);
-        color: var(--mp-dinner-ink);
-        border-color: var(--mp-dinner);
-      }
-      [data-slot="breakfast"] .mp-slot {
-        background: var(--mp-breakfast);
-        color: var(--mp-breakfast-ink);
-        border-color: var(--mp-breakfast);
-      }
-      .dark .mp-slot,
-      .white .mp-slot {
-        border-color: var(--pp-fg) !important;
-      }
-      /* Icon styles "color" and "mono": plain symbols without a filled circle. */
-      .mp--icons-color .mp-slot,
-      .mp--icons-mono .mp-slot {
-        background: transparent !important;
-        border-color: transparent !important;
-        color: var(--pp-fg);
-      }
-      /* Without a circle the glyph can use the whole badge box and slightly beyond. */
-      .mp--icons-color .mp-slot svg,
-      .mp--icons-mono .mp-slot svg {
         width: 100%;
         height: 100%;
         overflow: visible;
         transform: scale(1.2);
+      }
+      .mp-meal.is-repeat .mp-slot {
+        visibility: hidden;
       }
       .mp--icons-color [data-slot="lunch"] .mp-slot {
         color: var(--pp-orange, #ff8000);
@@ -241,11 +200,6 @@
         font-style: italic;
         font-weight: 400;
       }
-      .mp-meal.is-empty .mp-slot {
-        background: var(--pp-bg);
-        color: var(--pp-fg);
-        border: var(--mp-line) dashed var(--pp-fg);
-      }
       .mp-nothing {
         margin: 0;
         padding: calc(var(--k) * 8) 0 calc(var(--k) * 8) calc(var(--k) * 70);
@@ -277,9 +231,8 @@
         gap: calc(var(--k) * 6);
       }
       .mp-legend .mp-slot {
-        width: calc(var(--k) * 20);
-        height: calc(var(--k) * 20);
-        border-width: calc(var(--u) * 1.5);
+        width: calc(var(--k) * 16);
+        height: calc(var(--k) * 16);
       }
       .mp-meta {
         display: flex;
@@ -339,7 +292,7 @@
         .mp-legend .mp-slot {
           margin-top: 0;
         }
-        /* Narrow columns: the dish name flows around the slot badge to use the full width. */
+        /* Narrow columns: the dish name flows around the meal symbol to use the full width. */
         .mp-meal {
           display: block;
           padding: calc(var(--k) * 7) 0 calc(var(--k) * 8);
@@ -350,7 +303,7 @@
           display: block;
           clear: both;
         }
-        /* Badge stays shorter than one text line (17 x 1.24) so only the first line indents. */
+        /* Symbol box stays shorter than one text line (17 x 1.24) so only the first line indents. */
         .mp-slot {
           float: left;
           width: calc(var(--k) * 19);
