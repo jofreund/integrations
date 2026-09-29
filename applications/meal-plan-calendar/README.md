@@ -47,7 +47,7 @@ same slot are shown once.
 | `slots` | `lunch-dinner` | Slots shown as "not planned yet" when empty: `lunch-dinner`, `dinner`, `all`, `none`. |
 | `allDayMeal` | `dinner` | Slot for all-day entries without prefix: `dinner`, `lunch`, `breakfast`, `other`. |
 | `timeZone` | `Europe/Berlin` | IANA time zone for "today" and timed entries. |
-| `showHeader` | `true` | Show title, date range, and sample label. |
+| `showHeader` | `true` | Show title and sample label. |
 
 `sampleData` and `now` are available for previews and screenshot variants.
 

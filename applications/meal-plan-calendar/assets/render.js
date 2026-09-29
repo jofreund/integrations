@@ -145,14 +145,6 @@ function renderDay(day, data, locale, messages) {
   </section>`;
 }
 
-function rangeLabel(days, locale) {
-  if (!days.length) return "";
-  const first = dayFromKey(days[0].date);
-  const last = dayFromKey(days.at(-1).date);
-  const short = formatter(locale, { day: "numeric", month: "short" });
-  return days.length === 1 ? short.format(first) : `${short.format(first)} – ${short.format(last)}`;
-}
-
 function usedSlots(days, data) {
   const slots = new Set(data.slots || []);
   for (const day of days) for (const meal of day.meals) slots.add(meal.slot);
@@ -166,10 +158,7 @@ function renderPlan(data, settings, messages, visibleCount) {
   const title = String(settings.title || "").trim() || messages.title;
   const head = settings.showHeader
     ? `<header class="mp-head">
-        <div>
-          <h1>${escapeHtml(title)}</h1>
-          <p class="mp-range">${escapeHtml(rangeLabel(days, locale))}</p>
-        </div>
+        <h1>${escapeHtml(title)}</h1>
         ${data.sample ? `<span class="mp-kicker">${escapeHtml(messages.sampleSource)}</span>` : ""}
       </header>`
     : "";
