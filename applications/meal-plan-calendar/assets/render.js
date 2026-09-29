@@ -23,7 +23,6 @@ const defaults = {
   allDayMeal: "dinner",
   showLastEaten: true,
   lastEatenMinDays: 30,
-  weatherLocation: "",
   timeZone: "Europe/Berlin",
   showHeader: true,
   sampleData: false,
@@ -52,34 +51,6 @@ const glyphs = {
   other:
     '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 3v7a2 2 0 0 0 4 0V3M9 12v9"/><path d="M17 21V3c-2 1-3.2 3.6-3.2 7.2 0 1.6.9 2.8 3.2 2.8"/></g></svg>',
 };
-
-function weatherKind(code) {
-  if (code <= 1) return "sun";
-  if (code === 2) return "partly";
-  if (code === 45 || code === 48) return "fog";
-  if ((code >= 71 && code <= 77) || code === 85 || code === 86) return "snow";
-  if (code >= 95) return "storm";
-  if (code >= 51) return "rain";
-  return "cloud";
-}
-
-function weatherIcon(code) {
-  const sun =
-    '<circle cx="12" cy="12" r="5" fill="var(--pp-yellow)" stroke="var(--pp-black)" stroke-width="1.8"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.4M12 19.6V22M2 12h2.4M19.6 12H22M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M4.9 19.1l1.7-1.7M17.4 6.6l1.7-1.7"/></g>';
-  const cloud =
-    '<path d="M7 19h10.5a4 4 0 0 0 .4-8A5.5 5.5 0 0 0 7.3 10 4.5 4.5 0 0 0 7 19z" fill="var(--pp-bg)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
-  const shapes = {
-    sun,
-    partly:
-      '<circle cx="9" cy="8.5" r="4.4" fill="var(--pp-yellow)" stroke="var(--pp-black)" stroke-width="1.8"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 1.5v1.6M2 8.5h1.6M4 3.5l1.1 1.1M14 3.5l-1.1 1.1"/></g><path d="M8.5 21h9a3.6 3.6 0 0 0 .3-7.2 4.8 4.8 0 0 0-9.2-.6A4 4 0 0 0 8.5 21z" fill="var(--pp-bg)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
-    cloud,
-    fog: `${cloud.replace("M7 19", "M7 15").replace("a4 4 0 0 0 .4-8", "a3.5 3.5 0 0 0 .3-7").replace("4.5 4.5 0 0 0 7 19", "4 4 0 0 0 7 15")}<g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 18.5h16M6 21.5h12"/></g>`,
-    rain: `<g transform="translate(0 -3)">${cloud}</g><g stroke="var(--pp-blue)" stroke-width="2.4" stroke-linecap="round"><path d="M8.5 19l-1 3M12.5 19l-1 3M16.5 19l-1 3"/></g>`,
-    snow: `<g transform="translate(0 -3)">${cloud}</g><g fill="currentColor"><circle cx="8" cy="20.5" r="1.4"/><circle cx="12" cy="22" r="1.4"/><circle cx="16" cy="20.5" r="1.4"/></g>`,
-    storm: `<g transform="translate(0 -3)">${cloud}</g><path d="M12.5 15.5l-3 4.5h3l-1.5 3.8 4.5-5.3h-3l1.5-3z" fill="var(--pp-red)" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/>`,
-  };
-  return `<svg viewBox="0 0 24 24" aria-hidden="true">${shapes[weatherKind(code)]}</svg>`;
-}
 
 function fill(template, values) {
   return String(template || "").replace(/\{(\w+)\}/g, (_match, key) => values[key] ?? "");
@@ -172,9 +143,6 @@ function renderDay(day, data, locale, messages) {
   const tag = isToday ? messages.today : isTomorrow ? messages.tomorrow : "";
   const weekday = formatter(locale, { weekday: "long" }).format(date);
   const month = formatter(locale, { month: "long" }).format(date);
-  const weather = day.weather
-    ? `<span class="mp-wx">${weatherIcon(day.weather.code)}<span>${escapeHtml(day.weather.max)}°</span></span>`
-    : "";
   let previousSlot = "";
   const meals = day.meals
     .map((meal) => {
@@ -190,7 +158,6 @@ function renderDay(day, data, locale, messages) {
         <span class="mp-wd">${escapeHtml(weekday)}${tag ? `<em class="mp-tag mp-tag--inline">${escapeHtml(tag)}</em>` : ""}</span>
         <span class="mp-mo"><span class="mp-mo-text">${escapeHtml(month)}</span>${tag ? `<em class="mp-tag mp-tag--below">${escapeHtml(tag)}</em>` : ""}</span>
       </span>
-      ${weather}
     </header>
     ${meals ? `<ul class="mp-meals">${meals}</ul>` : `<p class="mp-nothing">${escapeHtml(messages.nothingPlanned)}</p>`}
   </section>`;
@@ -232,8 +199,6 @@ function renderPlan(data, settings, messages, visibleCount) {
     .join("");
   const meta = [];
   if (hidden > 0) meta.push(hidden === 1 ? messages.moreDaysOne : fill(messages.moreDays, { count: hidden }));
-  if (data.weatherLocation) meta.push(fill(messages.weatherFor, { location: data.weatherLocation }));
-  else if (data.weatherError) meta.push(messages.weatherUnavailable);
   if (data.sample && !settings.showHeader) meta.push(messages.sampleSource);
   app.innerHTML = `${head}
     <div class="mp-days" style="--mp-count:${days.length}">
@@ -302,7 +267,6 @@ async function loadPlan(settings, language) {
       allDayMeal: settings.allDayMeal,
       showLastEaten: settings.showLastEaten,
       lastEatenMinDays: settings.lastEatenMinDays,
-      weatherLocation: settings.weatherLocation,
       timeZone: settings.timeZone,
       sampleData: settings.sampleData,
       now: settings.now,

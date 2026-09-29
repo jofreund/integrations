@@ -8,12 +8,7 @@ import {
   parseCalendarFeed,
   stringSetting,
 } from "../../_shared/calendar-feed.js";
-import { getJson } from "../../_shared/dashboard-api.js";
 
-const OPEN_METEO_FORECAST_URL = "https://api.open-meteo.com/v1/forecast";
-const OPEN_METEO_GEOCODING_URL = "https://geocoding-api.open-meteo.com/v1/search";
-const WEATHER_TTL_MS = 30 * 60 * 1000;
-const FORECAST_DAYS = 16;
 // iCloud public feeds keep roughly the last six months; look back a little further
 // so other feeds with longer histories can still report "not eaten for X days".
 const HISTORY_DAYS = 400;
@@ -160,51 +155,9 @@ export function buildPlan(meals, { today, start, days, slots, showLastEaten = tr
       if (!dayMeals.some((meal) => meal.slot === slot)) dayMeals.push({ slot, title: "", empty: true });
     }
     dayMeals.sort((a, b) => SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot));
-    result.push({ date, meals: dayMeals, weather: null });
+    result.push({ date, meals: dayMeals });
   }
   return result;
-}
-
-function parseCoordinates(value) {
-  const match = /^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,;]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/.exec(value);
-  if (!match) return null;
-  const latitude = Number(match[1]);
-  const longitude = Number(match[2]);
-  if (Math.abs(latitude) > 90 || Math.abs(longitude) > 180) return null;
-  return { latitude, longitude, name: `${latitude.toFixed(2)}, ${longitude.toFixed(2)}` };
-}
-
-export async function fetchWeather(location, { timeZone, language, fetchJson = getJson }) {
-  let place = parseCoordinates(location);
-  if (!place) {
-    const search = new URLSearchParams({ name: location, count: "1", language, format: "json" });
-    const data = await fetchJson(`${OPEN_METEO_GEOCODING_URL}?${search}`, { ttl: WEATHER_TTL_MS * 48 });
-    const hit = Array.isArray(data?.results) ? data.results[0] : null;
-    if (!hit || !Number.isFinite(hit.latitude) || !Number.isFinite(hit.longitude)) {
-      throw new Error(`Weather location "${location}" was not found`);
-    }
-    place = { latitude: hit.latitude, longitude: hit.longitude, name: String(hit.name || location) };
-  }
-  const search = new URLSearchParams({
-    latitude: String(place.latitude),
-    longitude: String(place.longitude),
-    daily: "weather_code,temperature_2m_max,temperature_2m_min",
-    timezone: timeZone,
-    forecast_days: String(FORECAST_DAYS),
-  });
-  const data = await fetchJson(`${OPEN_METEO_FORECAST_URL}?${search}`, { ttl: WEATHER_TTL_MS });
-  const daily = data?.daily;
-  if (!daily || !Array.isArray(daily.time)) throw new Error("Weather forecast is unavailable");
-  const byDate = {};
-  daily.time.forEach((date, index) => {
-    const code = Number(daily.weather_code?.[index]);
-    const max = Number(daily.temperature_2m_max?.[index]);
-    const min = Number(daily.temperature_2m_min?.[index]);
-    if (Number.isFinite(code) && Number.isFinite(max)) {
-      byDate[date] = { code, max: Math.round(max), min: Number.isFinite(min) ? Math.round(min) : null };
-    }
-  });
-  return { location: place.name, byDate };
 }
 
 const SAMPLE_MEALS = {
@@ -227,16 +180,6 @@ const SAMPLE_MEALS = {
     ["Lentil stew", "Sheet-pan pizza"],
   ],
 };
-const SAMPLE_WEATHER = [
-  [0, 27, 15],
-  [1, 27, 16],
-  [3, 21, 13],
-  [3, 20, 12],
-  [61, 18, 11],
-  [2, 19, 10],
-  [80, 17, 9],
-];
-
 export function sampleEvents(start, language, slots = "lunch-dinner") {
   const dishes = SAMPLE_MEALS[language] || SAMPLE_MEALS.en;
   const withLunch = slots !== "dinner";
@@ -259,15 +202,6 @@ export function sampleEvents(start, language, slots = "lunch-dinner") {
   return events;
 }
 
-function sampleWeather(start, location) {
-  const byDate = {};
-  for (let index = 0; index < MAX_PLAN_DAYS; index += 1) {
-    const [code, max, min] = SAMPLE_WEATHER[index % SAMPLE_WEATHER.length];
-    byDate[addDays(start, index)] = { code, max, min };
-  }
-  return { location, byDate };
-}
-
 export default async function handler({ query = {} }) {
   const calendarUrl = stringSetting(query, "calendarUrl", "");
   const sample = booleanSetting(query, "sampleData", false) || !calendarUrl;
@@ -281,7 +215,6 @@ export default async function handler({ query = {} }) {
   const allDayMeal = ALL_DAY_SLOTS.has(allDaySetting) ? allDaySetting : "dinner";
   const showLastEaten = booleanSetting(query, "showLastEaten", true);
   const lastEatenMinDays = integerSetting(query, "lastEatenMinDays", 30, 1, 3650);
-  const weatherLocation = stringSetting(query, "weatherLocation", "");
   const range = planRange({ now: stringSetting(query, "now", ""), timeZone, days, startDay });
   const historyStart = addDays(range.today, -HISTORY_DAYS);
   const fetchFrom = historyStart < range.start ? historyStart : range.start;
@@ -305,21 +238,6 @@ export default async function handler({ query = {} }) {
   const meals = eventsToMeals(events, { timeZone, allDayMeal, rangeEndExclusive: range.endExclusive });
   const plan = buildPlan(meals, { ...range, days, slots, showLastEaten, lastEatenMinDays });
 
-  let weather = null;
-  let weatherError = "";
-  if (sample && weatherLocation) {
-    weather = sampleWeather(range.start, weatherLocation);
-  } else if (weatherLocation) {
-    try {
-      weather = await fetchWeather(weatherLocation, { timeZone, language });
-    } catch (error) {
-      weatherError = error instanceof Error ? error.message : String(error);
-    }
-  }
-  if (weather) {
-    for (const day of plan) day.weather = weather.byDate[day.date] || null;
-  }
-
   return {
     sample,
     source: sample ? "Sample data" : "iCloud calendar",
@@ -327,8 +245,6 @@ export default async function handler({ query = {} }) {
     timeZone,
     today: range.today,
     slots: SLOT_SETS[slots],
-    weatherLocation: weather?.location || "",
-    weatherError,
     days: plan,
   };
 }

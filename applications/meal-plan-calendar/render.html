@@ -102,8 +102,8 @@
       }
       .mp-date {
         display: grid;
-        grid-template-columns: auto 1fr auto;
-        grid-template-areas: "num dt wx";
+        grid-template-columns: auto 1fr;
+        grid-template-areas: "num dt";
         align-items: center;
         column-gap: calc(var(--k) * 12);
         padding-bottom: calc(var(--k) * 6);
@@ -159,21 +159,6 @@
         letter-spacing: 0.05em;
         line-height: 1.2;
       }
-      .mp-wx {
-        grid-area: wx;
-        display: flex;
-        align-items: center;
-        gap: calc(var(--k) * 5);
-        font-size: calc(var(--k) * 18);
-        font-weight: 600;
-        font-variant-numeric: tabular-nums;
-        white-space: nowrap;
-      }
-      .mp-wx svg {
-        width: calc(var(--k) * 26);
-        height: calc(var(--k) * 26);
-      }
-
       .mp-meals {
         list-style: none;
         margin: 0;
@@ -337,10 +322,10 @@
           padding-right: 0;
         }
         .mp-date {
-          grid-template-columns: auto 1fr;
+          grid-template-columns: 1fr;
           grid-template-areas:
-            "num wx"
-            "dt dt";
+            "num"
+            "dt";
           row-gap: calc(var(--k) * 4);
           column-gap: calc(var(--k) * 6);
         }
@@ -348,14 +333,6 @@
           justify-self: start;
           min-width: calc(var(--k) * 48);
           font-size: calc(var(--k) * 36);
-        }
-        .mp-wx {
-          justify-self: end;
-          font-size: calc(var(--k) * 16);
-        }
-        .mp-wx svg {
-          width: calc(var(--k) * 22);
-          height: calc(var(--k) * 22);
         }
         .mp-wd {
           font-size: calc(var(--k) * 15);

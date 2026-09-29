@@ -2,7 +2,7 @@
   "name": "Meal Plan Calendar",
   "version": "0.1.0",
   "status": "alpha",
-  "description": "Shows a family meal plan from a shared iCloud calendar with lunch and dinner per day, optional weather, and rarely cooked dishes.",
+  "description": "Shows a family meal plan from a shared iCloud calendar with lunch and dinner per day and a hint for dishes not eaten for a while.",
   "renderPage": "./render.html",
   "icon": "./assets/icon.png",
   "timezone": "Europe/Berlin",
@@ -17,7 +17,6 @@
     "allDayMeal": "dinner",
     "showLastEaten": true,
     "lastEatenMinDays": 30,
-    "weatherLocation": "",
     "timeZone": "Europe/Berlin",
     "showHeader": true
   },
@@ -81,13 +80,6 @@
         "maximum": 3650,
         "default": 30
       },
-      "weatherLocation": {
-        "type": "string",
-        "title": "Weather location",
-        "description": "City name or \"latitude, longitude\" for the daily forecast from Open-Meteo. Leave empty to hide weather.",
-        "maxLength": 80,
-        "default": ""
-      },
       "timeZone": {
         "type": "string",
         "title": "Time zone",
@@ -112,7 +104,6 @@
       "allDayMeal": "dinner",
       "showLastEaten": true,
       "lastEatenMinDays": 30,
-      "weatherLocation": "Berlin",
       "timeZone": "Europe/Berlin",
       "showHeader": true,
       "sampleData": true,
@@ -132,7 +123,6 @@
       "allDayMeal": "dinner",
       "showLastEaten": true,
       "lastEatenMinDays": 30,
-      "weatherLocation": "",
       "timeZone": "Europe/Berlin",
       "showHeader": true,
       "sampleData": true,

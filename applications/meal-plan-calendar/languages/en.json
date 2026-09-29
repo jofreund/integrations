@@ -10,8 +10,6 @@
   "lastEatenOne": "last eaten yesterday",
   "moreDays": "+{count} more days",
   "moreDaysOne": "+1 more day",
-  "weatherFor": "Weather: {location}",
-  "weatherUnavailable": "Weather unavailable",
   "errorTitle": "Meal plan unavailable",
   "errorHint": "Check the iCloud public calendar link in the settings.",
   "slots": {

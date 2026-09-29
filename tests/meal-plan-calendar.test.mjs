@@ -4,7 +4,6 @@ import { parseCalendarFeed } from "../applications/_shared/calendar-feed.js";
 import handler, {
   buildPlan,
   eventsToMeals,
-  fetchWeather,
   normalizeMealTitle,
   parseMealTitle,
   planRange,
@@ -142,40 +141,9 @@ test("multi-day all-day entries repeat and week mode starts on Monday", () => {
   assert.equal(range.endExclusive, "2026-10-05");
 });
 
-test("weather accepts coordinates or geocodes a city and maps daily forecasts", async () => {
-  const requests = [];
-  const fetchJson = async (url) => {
-    requests.push(new URL(url));
-    if (url.includes("geocoding")) return { results: [{ name: "Berlin", latitude: 52.52, longitude: 13.41 }] };
-    return {
-      daily: {
-        time: ["2026-09-29", "2026-09-30"],
-        weather_code: [0, 61],
-        temperature_2m_max: [26.6, 18.2],
-        temperature_2m_min: [14.9, 10.1],
-      },
-    };
-  };
-  const byCity = await fetchWeather("Berlin", { timeZone: "Europe/Berlin", language: "de", fetchJson });
-  assert.equal(byCity.location, "Berlin");
-  assert.deepEqual(byCity.byDate["2026-09-29"], { code: 0, max: 27, min: 15 });
-  assert.equal(requests[1].searchParams.get("latitude"), "52.52");
-  assert.equal(requests[1].searchParams.get("timezone"), "Europe/Berlin");
-
-  requests.length = 0;
-  const byCoordinates = await fetchWeather("48.14, 11.58", { timeZone: "Europe/Berlin", language: "de", fetchJson });
-  assert.equal(requests.length, 1, "coordinates skip geocoding");
-  assert.equal(byCoordinates.byDate["2026-09-30"].code, 61);
-
-  await assert.rejects(
-    fetchWeather("Nowhere", { timeZone: "UTC", language: "en", fetchJson: async () => ({ results: [] }) }),
-    /not found/,
-  );
-});
-
-test("sample mode is labelled, deterministic and respects meal and weather settings", async () => {
+test("sample mode is labelled, deterministic and respects meal settings", async () => {
   const data = await handler({
-    query: { now: "2026-09-29T15:28:00Z", language: "de", days: "5", weatherLocation: "Berlin" },
+    query: { now: "2026-09-29T15:28:00Z", language: "de", days: "5" },
   });
   assert.equal(data.sample, true);
   assert.equal(data.today, "2026-09-29");
@@ -184,15 +152,12 @@ test("sample mode is labelled, deterministic and respects meal and weather setti
   assert.equal(data.days[0].meals[0].title, "Spaghetti Bolognese");
   assert.equal(data.days[2].meals[0].empty, true);
   assert.ok(data.days.some((day) => day.meals.some((meal) => meal.lastEatenDays === 94)));
-  assert.equal(data.weatherLocation, "Berlin");
-  assert.ok(data.days[0].weather);
 
   const dinnerOnly = await handler({
     query: { now: "2026-09-29T15:28:00Z", language: "en", slots: "dinner", days: "20" },
   });
   assert.equal(dinnerOnly.days.length, 14, "day count is bounded");
   assert.ok(dinnerOnly.days.every((day) => day.meals.every((meal) => meal.slot === "dinner")));
-  assert.equal(dinnerOnly.days[0].weather, null, "no weather without a location");
 });
 
 test("private or non-HTTPS calendar links are rejected before fetching", async () => {

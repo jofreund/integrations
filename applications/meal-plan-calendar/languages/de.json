@@ -10,8 +10,6 @@
   "lastEatenOne": "seit gestern nicht gegessen",
   "moreDays": "+{count} weitere Tage",
   "moreDaysOne": "+1 weiterer Tag",
-  "weatherFor": "Wetter: {location}",
-  "weatherUnavailable": "Wetter nicht verfügbar",
   "errorTitle": "Essensplan nicht verfügbar",
   "errorHint": "Prüfe den öffentlichen iCloud-Kalenderlink in den Einstellungen.",
   "slots": {

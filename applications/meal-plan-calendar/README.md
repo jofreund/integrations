@@ -1,7 +1,7 @@
 # Meal Plan Calendar
 
 Shows a family meal plan ("Essensplan") that lives in a shared iCloud calendar. Every day gets a large
-date, optional weather, and its meals grouped into breakfast, lunch, and dinner. Open slots appear as
+date and its meals grouped into breakfast, lunch, and dinner. Open slots appear as
 "not planned yet", and dishes that have not been on the table for a while get a small
 "not eaten for X days" hint, computed from the calendar's own history.
 
@@ -53,7 +53,6 @@ older history cannot be counted.
 | `allDayMeal` | `dinner` | Slot for all-day entries without prefix: `dinner`, `lunch`, `breakfast`, `other`. |
 | `showLastEaten` | `true` | Show the "not eaten for X days" hint. |
 | `lastEatenMinDays` | `30` | Minimum gap before the hint appears. |
-| `weatherLocation` | `""` | City or `latitude, longitude` for the daily Open-Meteo forecast (up to 16 days). Empty hides weather. |
 | `timeZone` | `Europe/Berlin` | IANA time zone for "today" and timed entries. |
 | `showHeader` | `true` | Show title, date range, and sample label. |
 
@@ -65,7 +64,6 @@ older history cannot be counted.
   their accent instead. "Today"/"Tomorrow" are also written out.
 - Slot badges use native pigments: yellow with black outline for lunch, blue for dinner, green for
   breakfast. The footer legend names each slot, so color is never the only cue.
-- Weather is optional; a failed forecast never blocks the meal plan.
 
 ## Local verification
 
