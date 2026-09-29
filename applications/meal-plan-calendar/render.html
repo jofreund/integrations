@@ -188,6 +188,39 @@
       .white .mp-slot {
         border-color: var(--pp-fg) !important;
       }
+      /* Icon styles "color" and "mono": plain symbols without a filled circle. */
+      .mp--icons-color .mp-slot,
+      .mp--icons-mono .mp-slot {
+        background: transparent !important;
+        border-color: transparent !important;
+        color: var(--pp-fg);
+      }
+      /* Without a circle the glyph can use the whole badge box and slightly beyond. */
+      .mp--icons-color .mp-slot svg,
+      .mp--icons-mono .mp-slot svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+        transform: scale(1.2);
+      }
+      .mp--icons-color [data-slot="lunch"] .mp-slot {
+        color: var(--pp-orange, #ff8000);
+      }
+      .mp--icons-color [data-slot="dinner"] .mp-slot {
+        color: var(--pp-blue);
+      }
+      .mp--icons-color [data-slot="breakfast"] .mp-slot {
+        color: var(--pp-green);
+      }
+      .mp--icons-color .mp-meal.is-empty .mp-slot {
+        color: var(--pp-fg);
+      }
+      /* Blue on black is too weak: outline the dinner symbol on dark themes. */
+      .dark .mp--icons-color [data-slot="dinner"] .mp-slot path,
+      .white .mp--icons-color [data-slot="dinner"] .mp-slot path {
+        stroke: var(--pp-fg);
+        stroke-width: 1.2;
+      }
       .mp-text {
         min-width: 0;
         padding: calc(var(--k) * 9) 0;

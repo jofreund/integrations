@@ -47,6 +47,7 @@ same slot are shown once.
 | `slots` | `lunch-dinner` | Slots shown as "not planned yet" when empty: `lunch-dinner`, `dinner`, `all`, `none`. |
 | `allDayMeal` | `dinner` | Slot for all-day entries without prefix: `dinner`, `lunch`, `breakfast`, `other`. |
 | `timeZone` | `Europe/Berlin` | IANA time zone for "today" and timed entries. |
+| `iconStyle` | `badge` | Meal icons: `badge` (colored circles), `color` (colored symbols without background), `mono` (symbols in the text color). |
 | `showHeader` | `true` | Show title and sample label. |
 
 `sampleData` and `now` are available for previews and screenshot variants.
@@ -56,7 +57,8 @@ same slot are shown once.
 - Today's date sits on an orange block (dithered on Spectra 6, black numerals); colored themes use
   their accent instead.
 - Slot badges use native pigments: yellow with black outline for lunch, blue for dinner, green for
-  breakfast. The footer legend names each slot, so color is never the only cue.
+  breakfast. `iconStyle` switches to plain symbols, either colored (orange sun, blue moon) or in the
+  text color. The footer legend names each slot, so color is never the only cue.
 
 ## Local verification
 

@@ -22,12 +22,14 @@ const defaults = {
   slots: "lunch-dinner",
   allDayMeal: "dinner",
   timeZone: "Europe/Berlin",
+  iconStyle: "badge",
   showHeader: true,
   sampleData: false,
   now: "",
 };
 const FIT_SCALES = [1, 0.94, 0.88, 0.82, 0.76, 0.7];
 const MAX_TITLE = 120;
+const ICON_STYLES = ["badge", "color", "mono"];
 const SLOT_ORDER = ["breakfast", "lunch", "dinner", "other"];
 // Common dish components; compounds break before them ("Kartoffel-suppe", "Flamm-kuchen").
 const DISH_PARTS = [
@@ -276,6 +278,8 @@ async function renderPayload(payload) {
     settings.sampleData = toBoolean(settings.sampleData, false);
     applyColorTheme(settings.color, { defaultTheme: defaults.color });
     app.classList.remove("mp-error");
+    const iconStyle = ICON_STYLES.includes(settings.iconStyle) ? settings.iconStyle : defaults.iconStyle;
+    for (const style of ICON_STYLES) app.classList.toggle(`mp--icons-${style}`, style === iconStyle);
     // One unit is 1px on the 800x480 / 480x800 reference frames and scales with larger ones.
     const landscape = window.innerWidth >= window.innerHeight;
     const unit = landscape
